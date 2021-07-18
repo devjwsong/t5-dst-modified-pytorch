@@ -127,3 +127,7 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Jupyter stuff
+*.ipynb
+nohup.out
