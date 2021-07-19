@@ -131,3 +131,6 @@ dmypy.json
 # Jupyter stuff
 *.ipynb
 nohup.out
+
+# Tensorboard logs
+runs
