@@ -11,19 +11,19 @@ class DstDataset(Dataset):
     def __init__(self, prefix, args, tokenizer):
         print(f"Loading {prefix} dataset...")
         
-        with open(f"{args.data_dir}/{args.cached_dir}/{prefix}_utters.pickle", 'rb') as f:
+        with open(f"{args.data_dir}/{args.cached_dir}/{args.data_name}/{prefix}_utters.pickle", 'rb') as f:
             utters = pickle.load(f)
-        with open(f"{args.data_dir}/{args.cached_dir}/{prefix}_states.pickle", 'rb') as f:
+        with open(f"{args.data_dir}/{args.cached_dir}/{args.data_name}/{prefix}_states.pickle", 'rb') as f:
             states = pickle.load(f)
             
-        self.src_ids = []  # (N, S, S_L)
-        self.trg_ids = []  # (N, S, T_L)
+        self.src_ids = []  # (N, S_L)
+        self.trg_ids = []  # (N, T_L)
         
         for d, utter_dialogue in enumerate(tqdm(utters)):
             state_dialogue = states[d]
             
             utter_hists, state_hists = [], []
-            for u, utter in utter_dialogue:
+            for u, utter in enumerate(utter_dialogue):
                 state = state_dialogue[u]
                 
                 if utter.startswith("system"):
@@ -33,14 +33,16 @@ class DstDataset(Dataset):
                     utter_hists.append([user_utter_ids, sys_utter_ids])
                     state_hists.append(state)
                     
-            for t, turn in utter_hists:
+            for t, turn in enumerate(utter_hists):
                 src_ids, trg_ids = self.make_seqs(
                     utter_hists[:t+1], state_hists[:t+1], args.pad_id, args.sep_id, args.eos_id, args.src_max_len, args.trg_max_len, tokenizer
                 )
                 
                 if src_ids is not None and trg_ids is not None:
-                    self.src_ids.append(src_ids)
-                    self.trg_ids.append(trg_ids)
+                    self.src_ids += src_ids
+                    self.trg_ids += trg_ids
+        
+        assert len(self.src_ids) == len(self.trg_ids)
         
     def __len__(self):
         return len(self.src_ids)
@@ -66,10 +68,11 @@ class DstDataset(Dataset):
                 slot_desc_ids = tokenizer.encode(slot_desc)
                 src_ids.append(prefix_ids + [sep_id] + slot_desc_ids)
                 value_ids = tokenizer.encode(value)
+                trg_ids.append(value_ids)
                 assert len(value_ids) <= trg_max_len
             
             all_pass = True
-            for seq in input_ids:
+            for seq in src_ids:
                 if len(seq) > src_max_len:
                     all_pass = False
             
@@ -90,7 +93,7 @@ class DstDataset(Dataset):
         return result_state
     
 
-class T5FinetunePadCollate():
+class DstPadCollate():
     def __init__(self, pad_id):
         self.pad_id = pad_id
 

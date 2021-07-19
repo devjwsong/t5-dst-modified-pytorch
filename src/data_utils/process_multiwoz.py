@@ -79,9 +79,9 @@ def parse_data(args, from_dir, to_dir):
             total_data[f"{prefix}_states"].append(states)
         
     print("Saving each utterance & state files...")
-    save_files(to_dir, args.train_prefix, total_data[f"{args.train_prefix}_utters"], total_data[f"{args.train_prefix}_utters"])
-    save_files(to_dir, args.valid_prefix, total_data[f"{args.valid_prefix}_utters"], total_data[f"{args.valid_prefix}_utters"])
-    save_files(to_dir, args.test_prefix, total_data[f"{args.test_prefix}_utters"], total_data[f"{args.test_prefix}_utters"])
+    save_files(to_dir, args.train_prefix, total_data[f"{args.train_prefix}_utters"], total_data[f"{args.train_prefix}_states"])
+    save_files(to_dir, args.valid_prefix, total_data[f"{args.valid_prefix}_utters"], total_data[f"{args.valid_prefix}_states"])
+    save_files(to_dir, args.test_prefix, total_data[f"{args.test_prefix}_utters"], total_data[f"{args.test_prefix}_states"])
     
     print("Calculating additional infos...")
     num_train_utters = count_utters(total_data[f"{args.train_prefix}_utters"])
