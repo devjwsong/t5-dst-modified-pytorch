@@ -26,7 +26,6 @@ def run(args):
     model.resize_token_embeddings(args.vocab_size)
     print(tokenizer)
     print(model)
-    print(args.vocab_size)
     
     args.eos_token = tokenizer.eos_token
     args.unk_token = tokenizer.unk_token
@@ -177,6 +176,7 @@ if __name__=="__main__":
     parser.add_argument("--gpu", type=str, default="0")
     parser.add_argument("--save_dir", type=str, default="saved_models")
     parser.add_argument("--save_prefix", type=str, default="best_model")
+    parser.add_argument("--use_cached", action="store_true")
     
     args = parser.parse_args()
     

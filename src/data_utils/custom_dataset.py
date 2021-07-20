@@ -11,52 +11,59 @@ class DstDataset(Dataset):
     def __init__(self, prefix, args, tokenizer):
         print(f"Loading {prefix} dataset...")
         
-        with open(f"{args.data_dir}/{args.cached_dir}/{args.data_name}/{prefix}_utters.pickle", 'rb') as f:
-            utters = pickle.load(f)
-        with open(f"{args.data_dir}/{args.cached_dir}/{args.data_name}/{prefix}_states.pickle", 'rb') as f:
-            states = pickle.load(f)
+        if not args.use_cached:
+            print("Since you chose not to use cached data, preprocessing will start first.")
+            total_src_ids, total_trg_ids = [], []
             
-        self.src_ids = []  # (N, S_L)
-        self.trg_ids = []  # (N, T_L)
+            with open(f"{args.data_dir}/{args.cached_dir}/{args.data_name}/{prefix}_utters.pickle", 'rb') as f:
+                utters = pickle.load(f)
+            with open(f"{args.data_dir}/{args.cached_dir}/{args.data_name}/{prefix}_states.pickle", 'rb') as f:
+                states = pickle.load(f)
         
-        for d, utter_dialogue in enumerate(tqdm(utters)):
-            state_dialogue = states[d]
+            for d, utter_dialogue in enumerate(tqdm(utters)):
+                state_dialogue = states[d]
+
+                utter_hists, state_hists = [], []
+                for u, utter in enumerate(utter_dialogue):
+                    state = state_dialogue[u]
+
+                    if utter.startswith("system"):
+                        user_utter_ids = tokenizer.encode(utter_dialogue[u-1])[:-1]
+                        sys_utter_ids = tokenizer.encode(utter)[:-1]
+                        utter_hists.append([user_utter_ids, sys_utter_ids])
+                        state_hists.append(state)
+
+                for t, turn in enumerate(utter_hists):
+                    src_ids, trg_ids = self.make_seqs(
+                        utter_hists[:t+1], state_hists[:t+1], args.pad_id, args.sep_id, args.eos_id, args.src_max_len, args.trg_max_len, tokenizer
+                    )
+
+                    if src_ids is not None and trg_ids is not None:
+                        total_src_ids += src_ids
+                        total_trg_ids += trg_ids
+        
+            assert len(total_src_ids) == len(total_trg_ids)
             
-            utter_hists, state_hists = [], []
-            for u, utter in enumerate(utter_dialogue):
-                state = state_dialogue[u]
-                
-                if utter.startswith("system"):
-                    user_utter_ids = tokenizer.encode(utter_dialogue[u-1])[:-1]
-                    sys_utter_ids = tokenizer.encode(utter)[:-1]
-                    utter_hists.append([user_utter_ids, sys_utter_ids])
-                    state_hists.append(state)
-                    
-            for t, turn in enumerate(utter_hists):
-                src_ids, trg_ids = self.make_seqs(
-                    utter_hists[:t+1], state_hists[:t+1], args.pad_id, args.sep_id, args.eos_id, args.src_max_len, args.trg_max_len, tokenizer
-                )
-                
-                if src_ids is not None and trg_ids is not None:
-                    self.src_ids += src_ids
-                    self.trg_ids += trg_ids
+            with open(f"{args.data_dir}/{args.cached_dir}/{args.data_name}/{prefix}_src_ids.pickle", 'wb') as f:
+                pickle.dump(total_src_ids, f)
+            with open(f"{args.data_dir}/{args.cached_dir}/{args.data_name}/{prefix}_trg_ids.pickle", 'wb') as f:
+                pickle.dump(total_trg_ids, f)
         
-        assert len(self.src_ids) == len(self.trg_ids)
-        
-#         print("Sanity check...")
-#         for i in range(len(self.src_ids)):
-#             src_ids, trg_ids = self.src_ids[i], self.trg_ids[i]
-#             for idx in src_ids:
-#                 assert idx >= 0 and idx < args.vocab_size
-#             for idx in trg_ids:
-#                 assert idx >= 0 and idx < args.vocab_size
+        self.src_path = f"{args.data_dir}/{args.cached_dir}/{args.data_name}/{prefix}_src_ids.pickle"
+        self.trg_path = f"{args.data_dir}/{args.cached_dir}/{args.data_name}/{prefix}_trg_ids.pickle"
+        with open(f"{args.data_dir}/{args.cached_dir}/{args.data_name}/{prefix}_src_ids.pickle", 'rb') as f:
+            self.num_samples = len(pickle.load(f))
         
     def __len__(self):
-        return len(self.src_ids)
+        return self.num_samples
     
     def __getitem__(self, i):
-        # We’ll pad at the batch level.
-        return self.src_ids[i], self.trg_ids[i]
+        with open(self.src_path, 'rb') as f:
+            src_ids = pickle.load(f)[i]
+        with open(self.trg_path, 'rb') as f:
+            trg_ids = pickle.load(f)[i]
+            
+        return src_ids, trg_ids
                 
     def make_seqs(self, utter_hists, state_hists, pad_id, sep_id, eos_id, src_max_len, trg_max_len, tokenizer):
         start_idx = 0
