@@ -26,6 +26,7 @@ def run(args):
     model.resize_token_embeddings(args.vocab_size)
     print(tokenizer)
     print(model)
+    print(args.vocab_size)
     
     args.eos_token = tokenizer.eos_token
     args.unk_token = tokenizer.unk_token
@@ -185,7 +186,7 @@ if __name__=="__main__":
     print("#"*50 + "Running spec" + "#"*50)
     print(args)
     
-    input("Please press Enter to proceed...")
+#     input("Please press Enter to proceed...")
     
     run(args)
     

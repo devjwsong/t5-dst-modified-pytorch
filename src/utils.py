@@ -41,6 +41,7 @@ def get_joint_goal_acc(preds, trues, num_slots, round_num=4):
 
 
 def get_slot_acc(preds, trues, slot_list, round_num=4):
+    counts = {slot: 0 for slot in slot_list}
     results = {slot: 0 for slot in slot_list}
     
     for start in range(0, len(trues), len(slot_list)):
@@ -49,12 +50,14 @@ def get_slot_acc(preds, trues, slot_list, round_num=4):
         
         for i in range(len(true_state)):
             slot = slot_list[i]
-            if pred_state[i] == true_state[i]:
-                results[slot] += 1
+            if true_state[i] != 'none':
+                counts[slot] += 1
+                if pred_state[i] == true_state[i]:
+                    results[slot] += 1
     
-    total_sum = 0
+    total_sum = 0.0
     for slot, corr_count in results.items():
-        results[slot] = round(corr_count / (len(preds) // len(slot_list)), round_num)
+        results[slot] = round(corr_count / counts[slot], round_num)
         total_sum += results[slot]
         
     results['mean'] = round(total_sum / len(slot_list), round_num)

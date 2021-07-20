@@ -1,6 +1,6 @@
 python src/main.py \
     --seed=0 \
-    --data_dir="/root/share/t5-dst-modified-pytorch/data" \
+    --data_dir="/data/jaewoo_song/t5-dst-modified-pytorch/data" \
     --cached_dir="cached" \
     --data_name="multiwoz" \
     --model_name="t5-small" \
@@ -18,6 +18,6 @@ python src/main.py \
     --warmup_ratio=0.0 \
     --max_grad_norm=1.0 \
     --sep_token="<sep>" \
-    --gpu="1" \
-    --save_dir="/root/share/t5-dst-modified-pytorch/saved_models" \
+    --gpu="4" \
+    --save_dir="/data/jaewoo_song/t5-dst-modified-pytorch/saved_models" \
     --save_prefix="best_model"

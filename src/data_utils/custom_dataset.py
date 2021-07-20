@@ -27,7 +27,6 @@ class DstDataset(Dataset):
                 state = state_dialogue[u]
                 
                 if utter.startswith("system"):
-                    assert u % 2 == 1, f"{utter_dialogue}"
                     user_utter_ids = tokenizer.encode(utter_dialogue[u-1])[:-1]
                     sys_utter_ids = tokenizer.encode(utter)[:-1]
                     utter_hists.append([user_utter_ids, sys_utter_ids])
@@ -43,6 +42,14 @@ class DstDataset(Dataset):
                     self.trg_ids += trg_ids
         
         assert len(self.src_ids) == len(self.trg_ids)
+        
+#         print("Sanity check...")
+#         for i in range(len(self.src_ids)):
+#             src_ids, trg_ids = self.src_ids[i], self.trg_ids[i]
+#             for idx in src_ids:
+#                 assert idx >= 0 and idx < args.vocab_size
+#             for idx in trg_ids:
+#                 assert idx >= 0 and idx < args.vocab_size
         
     def __len__(self):
         return len(self.src_ids)
