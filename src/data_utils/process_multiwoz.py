@@ -112,12 +112,18 @@ def parse_dialogue(args, obj):
     log = obj['log']
     utters = [""] * len(log)
     states = [copy.deepcopy(state_template) for i in range(len(utters))]
+    prev_speaker = ""
     for t, turn in enumerate(log):
         metadata = turn['metadata']
         if len(metadata) > 0:
             speaker = "system"
         else:
             speaker = "user"
+            
+        if prev_speaker == speaker:
+            utters = utters[:t]
+            states = states[:t]
+            break
 
         if t == 0:
             assert speaker == "user"
@@ -144,6 +150,8 @@ def parse_dialogue(args, obj):
         
         for slot_type, value in temp_state.items():
             states[t][slot_descs[slot_type]] = value
+            
+        prev_speaker = speaker
         
     assert len(utters) == len(states)
     

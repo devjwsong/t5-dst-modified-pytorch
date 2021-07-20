@@ -8,10 +8,10 @@ python src/main.py \
     --valid_prefix="valid" \
     --test_prefix="test" \
     --slot_descs_prefix="slot_descs" \
-    --num_epochs=1 \
-    --train_batch_size=8 \
-    --eval_batch_size=8 \
-    --num_workers=0 \
+    --num_epochs=10 \
+    --train_batch_size=32 \
+    --eval_batch_size=16 \
+    --num_workers=8 \
     --src_max_len=512 \
     --trg_max_len=64 \
     --learning_rate=1e-4 \

@@ -27,7 +27,7 @@ class DstDataset(Dataset):
                 state = state_dialogue[u]
                 
                 if utter.startswith("system"):
-                    assert u % 2 == 1
+                    assert u % 2 == 1, f"{utter_dialogue}"
                     user_utter_ids = tokenizer.encode(utter_dialogue[u-1])[:-1]
                     sys_utter_ids = tokenizer.encode(utter)[:-1]
                     utter_hists.append([user_utter_ids, sys_utter_ids])
@@ -83,7 +83,7 @@ class DstDataset(Dataset):
 
         return None, None  
     
-    def cut_state(prev_state, trg_state):
+    def cut_state(self, prev_state, trg_state):
         result_state = copy.deepcopy(trg_state)
         for slot_desc, value in trg_state.items():
             prev_value = prev_state[slot_desc]
