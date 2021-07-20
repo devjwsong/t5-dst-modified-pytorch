@@ -42,7 +42,10 @@ def get_slot_acc(preds, trues, slot_list, round_num=4):
     
     total_sum = 0.0
     for slot, corr_count in results.items():
-        results[slot] = round(corr_count / counts[slot], round_num)
+        try:
+            results[slot] = round(corr_count / counts[slot], round_num)
+        except ZeroDivisionError:
+            results[slot] = 0.0
         total_sum += results[slot]
         
     results['mean'] = round(total_sum / len(slot_list), round_num)

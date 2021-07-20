@@ -5,6 +5,7 @@ from argparse import Namespace
 
 import torch
 import pytorch_lightning as pl
+import numpy as np
 
 
 class TrainModule(pl.LightningModule):
