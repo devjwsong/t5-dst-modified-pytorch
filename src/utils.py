@@ -1,18 +1,3 @@
-from itertools import chain
-from tqdm import tqdm
-
-import torch
-import random
-import numpy as np
-
-
-def fix_seed(seed):
-    np.random.seed(seed)
-    torch.manual_seed(seed)
-    torch.cuda.manual_seed_all(seed)
-    random.seed(seed)
-    
-
 def make_strs(tensor_list, tokenizer, pad_token, eos_token):
     trg_ids_list = []
     for tensor in tensor_list:
