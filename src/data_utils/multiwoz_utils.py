@@ -1,9 +1,6 @@
-from tqdm import tqdm
-
-import json
+import re
 import copy
 import pickle
-import re
 
 
 slot_descs = {
@@ -40,74 +37,18 @@ slot_descs = {
 }
 
 
-def parse_data(args, from_dir, to_dir):
-    with open(f"{from_dir}/valListFile.txt", 'r') as f:
-        valid_list = f.readlines()
-    with open(f"{from_dir}/testListFile.txt", 'r') as f:
-        test_list = f.readlines()
-    valid_list = [valid_name.strip() for valid_name in valid_list]
-    test_list = [test_name.strip() for test_name in test_list]
-        
-    print("Saving the slot description json file...")
-    with open(f"{to_dir}/{args.slot_descs_prefix}.json", 'w') as f:
-        json.dump(slot_descs, f)
-        
-    print("Parsing data...")
-    with open(f"{from_dir}/data.json", 'r') as f:
-        data = json.load(f)
-    
-    total_data = {
-        f"{args.train_prefix}_utters": [],
-        f"{args.train_prefix}_states": [],
-        f"{args.valid_prefix}_utters": [],
-        f"{args.valid_prefix}_states": [],
-        f"{args.test_prefix}_utters": [],
-        f"{args.test_prefix}_states": [],
-    }
-    
-    for dialogue_id, obj in tqdm(data.items()):
-        if dialogue_id in valid_list:
-            prefix = args.valid_prefix
-        elif dialogue_id in test_list:
-            prefix = args.test_prefix
-        else:
-            prefix = args.train_prefix
-            
-        utters, states = parse_dialogue(args, obj)
-        if utters is not None:
-            total_data[f"{prefix}_utters"].append(utters)
-            total_data[f"{prefix}_states"].append(states)
-        
-    print("Saving each utterance & state files...")
-    save_files(to_dir, args.train_prefix, total_data[f"{args.train_prefix}_utters"], total_data[f"{args.train_prefix}_states"])
-    save_files(to_dir, args.valid_prefix, total_data[f"{args.valid_prefix}_utters"], total_data[f"{args.valid_prefix}_states"])
-    save_files(to_dir, args.test_prefix, total_data[f"{args.test_prefix}_utters"], total_data[f"{args.test_prefix}_states"])
-    
-    print("Calculating additional infos...")
-    num_train_utters = count_utters(total_data[f"{args.train_prefix}_utters"])
-    num_valid_utters = count_utters(total_data[f"{args.valid_prefix}_utters"])
-    num_test_utters = count_utters(total_data[f"{args.test_prefix}_utters"])
-    
-    print("<Total Spec: MultiWoZ 2.1>")
-    print(f"The # of train dialogues: {len(total_data[f'{args.train_prefix}_utters'])}")
-    print(f"The # of train utterances: {num_train_utters}")
-    print(f"The # of valid dialogues: {len(total_data[f'{args.valid_prefix}_utters'])}")
-    print(f"The # of valid utterances: {num_valid_utters}")
-    print(f"The # of test dialogues: {len(total_data[f'{args.test_prefix}_utters'])}")
-    print(f"The # of valid utterances: {num_test_utters}")
-            
+def get_domains(goal):
+    domains = []
+    for k, v in goal.items():
+        if len(v) > 0 and k not in ['message', 'topic']:
+            domains.append(k)
+    return domains
+
 
 def parse_dialogue(args, obj):
     goal = obj['goal']
-    domains = []
-    for k, v in goal.items():
-        if len(v) > 0:
-            domains.append(k)
-            
+    domains = get_domains(goal)
     state_template = {v: "none" for k, v in slot_descs.items()}
-            
-    if "hospital" in domains or "bus" in domains:
-        return None, None
     
     log = obj['log']
     utters = [""] * len(log)

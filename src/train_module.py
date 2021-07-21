@@ -82,7 +82,11 @@ class TrainModule(pl.LightningModule):
         assert len(valid_preds) % len(self.args.slot_list) == 0
         
         valid_joint_goal_acc = get_joint_goal_acc(valid_preds, valid_trues, len(self.args.slot_list))
-        valid_slot_accs = get_slot_acc(valid_preds, valid_trues, self.args.slot_list)
+        valid_slot_accs = get_slot_acc(valid_preds, valid_trues, self.args.slot_list, trg_domain=self.args.trg_domain)
+        
+        print(f"Valid Joint Goal Acc: {valid_joint_goal_acc}")
+        print("Valid Slot Acc")
+        print(valid_slot_accs)
         
         self.log(f"valid_joint_goal_acc", valid_joint_goal_acc, on_step=False, on_epoch=True, prog_bar=True, logger=True)
         self.log(f"valid_slot_acc", valid_slot_accs['mean'], on_step=False, on_epoch=True, prog_bar=True, logger=True)
@@ -108,7 +112,11 @@ class TrainModule(pl.LightningModule):
         assert len(test_preds) % len(self.args.slot_list) == 0
         
         test_joint_goal_acc = get_joint_goal_acc(test_preds, test_trues, len(self.args.slot_list))
-        test_slot_accs = get_slot_acc(test_preds, test_trues, self.args.slot_list)
+        test_slot_accs = get_slot_acc(test_preds, test_trues, self.args.slot_list, trg_domain=self.args.trg_domain)
+        
+        print(f"Test Joint Goal Acc: {test_joint_goal_acc}")
+        print("Test Slot Acc")
+        print(test_slot_accs)
         
         self.log(f"test_joint_goal_acc", test_joint_goal_acc, on_step=False, on_epoch=True, prog_bar=True, logger=True)
         self.log(f"test_slot_acc", test_slot_accs['mean'], on_step=False, on_epoch=True, prog_bar=True, logger=True)

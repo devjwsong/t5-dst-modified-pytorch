@@ -25,7 +25,7 @@ def get_joint_goal_acc(preds, trues, num_slots, round_num=4):
     return round(corr / N, round_num)
 
 
-def get_slot_acc(preds, trues, slot_list, round_num=4):
+def get_slot_acc(preds, trues, slot_list, trg_domain=None, round_num=4):
     counts = {slot: 0 for slot in slot_list}
     results = {slot: 0 for slot in slot_list}
     
@@ -41,14 +41,22 @@ def get_slot_acc(preds, trues, slot_list, round_num=4):
                     results[slot] += 1
     
     total_sum = 0.0
+    num_slots = len(slot_list)
+    if trg_domain is not None:
+        num_slots = 0
+        for slot in slot_list:
+            if trg_domain in slot:
+                num_slots += 1
+    
     for slot, corr_count in results.items():
         try:
             results[slot] = round(corr_count / counts[slot], round_num)
         except ZeroDivisionError:
             results[slot] = 0.0
-        total_sum += results[slot]
+        if trg_domain is None or (trg_domain is not None and trg_domain in slot):
+            total_sum += results[slot]
         
-    results['mean'] = round(total_sum / len(slot_list), round_num)
+    results['mean'] = round(total_sum / num_slots, round_num)
     
     return results
     

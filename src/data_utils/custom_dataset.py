@@ -11,6 +11,10 @@ class DstDataset(Dataset):
     def __init__(self, prefix, args, tokenizer):
         print(f"Loading {prefix} dataset...")
         
+        # Zero-shot
+        if args.trg_domain is not None:
+            args.data_name = f"{args.data_name}/{args.trg_domain}"
+        
         if not args.use_cached:
             print("Since you chose not to use cached data, preprocessing will start first.")
             total_src_ids, total_trg_ids = [], []

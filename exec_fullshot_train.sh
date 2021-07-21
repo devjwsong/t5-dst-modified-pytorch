@@ -2,7 +2,8 @@ python src/main.py \
     --seed=0 \
     --data_dir="/data/jaewoo_song/t5-dst-modified-pytorch/data" \
     --cached_dir="cached" \
-    --data_name="multiwoz" \
+    --data_name="multiwoz_zeroshot" \
+    --trg_domain="" \
     --model_name="t5-small" \
     --train_prefix="train" \
     --valid_prefix="valid" \
@@ -17,7 +18,8 @@ python src/main.py \
     --learning_rate=1e-4 \
     --warmup_ratio=0.0 \
     --max_grad_norm=1.0 \
+    --min_delta=1e-4 \
+    --patience=3 \
     --sep_token="<sep>" \
     --gpu="1" \
-    --log_dir="/data/jaewoo_song/t5-dst-modified-pytorch/" \
-    --use_cached
+    --log_dir="/data/jaewoo_song/t5-dst-modified-pytorch/"
