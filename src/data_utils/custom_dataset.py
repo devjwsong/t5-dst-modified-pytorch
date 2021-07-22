@@ -11,10 +11,6 @@ class DstDataset(Dataset):
     def __init__(self, prefix, args, tokenizer):
         print(f"Loading {prefix} dataset...")
         
-        # Zero-shot
-        if args.trg_domain is not None:
-            args.data_name = f"{args.data_name}/{args.trg_domain}"
-        
         if not args.use_cached:
             print("Since you chose not to use cached data, preprocessing will start first.")
             total_src_ids, total_trg_ids = [], []
@@ -52,11 +48,7 @@ class DstDataset(Dataset):
                 pickle.dump(total_src_ids, f)
             with open(f"{args.data_dir}/{args.cached_dir}/{args.data_name}/{prefix}_trg_ids.pickle", 'wb') as f:
                 pickle.dump(total_trg_ids, f)
-        
-#         self.src_path = f"{args.data_dir}/{args.cached_dir}/{args.data_name}/{prefix}_src_ids.pickle"
-#         self.trg_path = f"{args.data_dir}/{args.cached_dir}/{args.data_name}/{prefix}_trg_ids.pickle"
-#         with open(self.src_path, 'rb') as f:
-#             self.num_samples = len(pickle.load(f))
+
         with open(f"{args.data_dir}/{args.cached_dir}/{args.data_name}/{prefix}_src_ids.pickle", 'rb') as f:
             self.src_ids = pickle.load(f)
         with open(f"{args.data_dir}/{args.cached_dir}/{args.data_name}/{prefix}_trg_ids.pickle", 'rb') as f:
@@ -66,12 +58,6 @@ class DstDataset(Dataset):
         return len(self.src_ids)
     
     def __getitem__(self, i):
-#         with open(self.src_path, 'rb') as f:
-#             src_ids = pickle.load(f)[i]
-#         with open(self.trg_path, 'rb') as f:
-#             trg_ids = pickle.load(f)[i]
-            
-#         return src_ids, trg_ids
         return self.src_ids[i], self.trg_ids[i]
                 
     def make_seqs(self, utter_hists, state_hists, pad_id, sep_id, eos_id, src_max_len, trg_max_len, tokenizer):

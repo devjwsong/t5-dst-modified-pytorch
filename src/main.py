@@ -17,6 +17,9 @@ def run(args):
     args.src_max_len = min(args.src_max_len, pt_module.model.config.n_positions)
     
     print("Loading & preprocessing data...")
+    # Zero-shot
+    if args.trg_domain is not None:
+        args.data_name = f"{args.data_name}/{args.trg_domain}"
     train_set = DstDataset(args.train_prefix, args, pt_module.tokenizer)
     valid_set = DstDataset(args.valid_prefix, args, pt_module.tokenizer)
     test_set = DstDataset(args.test_prefix, args, pt_module.tokenizer)
@@ -34,7 +37,7 @@ def run(args):
     num_batches = len(train_loader)
     args.num_training_steps = args.num_epochs * num_batches
     args.num_warmup_steps = int(args.warmup_ratio * args.num_training_steps)
-
+    
     print("Setting pytorch lightning callback & trainer...")
     filename = "best_ckpt_{epoch}_{valid_joint_goal_acc:.4f}_{valid_slot_acc:.4f}"
     monitor = "valid_joint_goal_acc"
@@ -69,7 +72,7 @@ def run(args):
     trainer.fit(model=pt_module, train_dataloader=train_loader, val_dataloaders=valid_loader)
     
     print("Test starts.")
-    trainer.test(test_dataloader=test_loader, ckpt_path='best')
+    trainer.test(test_dataloaders=test_loader, ckpt_path='best')
     
     print("GOOD BYE.")
 

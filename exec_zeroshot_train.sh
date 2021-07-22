@@ -2,13 +2,14 @@ python src/main.py \
     --seed=0 \
     --data_dir="/data/jaewoo_song/t5-dst-modified-pytorch/data" \
     --cached_dir="cached" \
-    --data_name="multiwoz_fullshot" \
+    --data_name="multiwoz_zeroshot" \
+    --trg_domain="hotel" \
     --model_name="t5-small" \
     --train_prefix="train" \
     --valid_prefix="valid" \
     --test_prefix="test" \
     --slot_descs_prefix="slot_descs" \
-    --num_epochs=10 \
+    --num_epochs=5 \
     --train_batch_size=32 \
     --eval_batch_size=16 \
     --num_workers=4 \
