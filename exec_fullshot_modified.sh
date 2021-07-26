@@ -1,8 +1,8 @@
-python src/main.py \
+python src/modified_train.py \
     --seed=0 \
     --data_dir="/data/jaewoo_song/t5-dst-modified-pytorch/data" \
     --cached_dir="cached" \
-    --data_name="multiwoz" \
+    --data_name="multiwoz_fullshot" \
     --model_name="t5-small" \
     --train_prefix="train" \
     --valid_prefix="valid" \
@@ -14,6 +14,7 @@ python src/main.py \
     --num_workers=4 \
     --src_max_len=512 \
     --trg_max_len=64 \
+    --max_extras=5 \
     --learning_rate=1e-4 \
     --warmup_ratio=0.0 \
     --max_grad_norm=1.0 \

@@ -5,9 +5,10 @@ from itertools import chain
 import torch
 import pickle
 import copy
+import os
 
 
-class DstDataset(Dataset):
+class BasicDataset(Dataset):
     def __init__(self, prefix, args, tokenizer):
         print(f"Loading {prefix} dataset...")
         
@@ -44,14 +45,17 @@ class DstDataset(Dataset):
         
             assert len(total_src_ids) == len(total_trg_ids)
             
-            with open(f"{args.data_dir}/{args.cached_dir}/{args.data_name}/{prefix}_src_ids.pickle", 'wb') as f:
+            if not os.path.exists(f"{args.data_dir}/{args.cached_dir}/{args.data_name}/basic"):
+                os.makedirs(f"{args.data_dir}/{args.cached_dir}/{args.data_name}/basic")
+            
+            with open(f"{args.data_dir}/{args.cached_dir}/{args.data_name}/basic/{prefix}_src_ids.pickle", 'wb') as f:
                 pickle.dump(total_src_ids, f)
-            with open(f"{args.data_dir}/{args.cached_dir}/{args.data_name}/{prefix}_trg_ids.pickle", 'wb') as f:
+            with open(f"{args.data_dir}/{args.cached_dir}/{args.data_name}/basic/{prefix}_trg_ids.pickle", 'wb') as f:
                 pickle.dump(total_trg_ids, f)
 
-        with open(f"{args.data_dir}/{args.cached_dir}/{args.data_name}/{prefix}_src_ids.pickle", 'rb') as f:
+        with open(f"{args.data_dir}/{args.cached_dir}/{args.data_name}/basic/{prefix}_src_ids.pickle", 'rb') as f:
             self.src_ids = pickle.load(f)
-        with open(f"{args.data_dir}/{args.cached_dir}/{args.data_name}/{prefix}_trg_ids.pickle", 'rb') as f:
+        with open(f"{args.data_dir}/{args.cached_dir}/{args.data_name}/basic/{prefix}_trg_ids.pickle", 'rb') as f:
             self.trg_ids = pickle.load(f)
         
     def __len__(self):
@@ -102,7 +106,7 @@ class DstDataset(Dataset):
         return result_state
     
 
-class DstPadCollate():
+class BasicPadCollate():
     def __init__(self, pad_id):
         self.pad_id = pad_id
 

@@ -8,7 +8,7 @@ import pytorch_lightning as pl
 import numpy as np
 
 
-class TrainModule(pl.LightningModule):
+class BasicModule(pl.LightningModule):
     def __init__(self, args):
         super().__init__()
         if isinstance(args, dict):
@@ -75,14 +75,14 @@ class TrainModule(pl.LightningModule):
             valid_preds.append(result['preds'])
             valid_trues.append(result['trues'])
         
-        valid_preds = make_strs(valid_preds, self.tokenizer, self.args.pad_token, self.args.eos_token)
-        valid_trues = make_strs(valid_trues, self.tokenizer, self.args.pad_token, self.args.eos_token)
+        valid_preds = make_basic_strs(valid_preds, self.tokenizer, self.args.pad_token, self.args.eos_token)
+        valid_trues = make_basic_strs(valid_trues, self.tokenizer, self.args.pad_token, self.args.eos_token)
         
         assert len(valid_preds) == len(valid_trues)
-        assert len(valid_preds) % len(self.args.slot_list) == 0
+        assert len(valid_preds) % len(self.args.valid_slot_list) == 0
         
-        valid_joint_goal_acc = get_joint_goal_acc(valid_preds, valid_trues, len(self.args.slot_list))
-        valid_slot_accs = get_slot_acc(valid_preds, valid_trues, self.args.slot_list, trg_domain=self.args.trg_domain)
+        valid_joint_goal_acc = get_joint_goal_acc(valid_preds, valid_trues, self.args.valid_slot_list, trg_domain=self.args.trg_domain)
+        valid_slot_accs = get_slot_acc(valid_preds, valid_trues, self.args.valid_slot_list, trg_domain=self.args.trg_domain)
         
         print(f"Valid Joint Goal Acc: {valid_joint_goal_acc}")
         print("Valid Slot Acc")
@@ -105,14 +105,14 @@ class TrainModule(pl.LightningModule):
             test_preds.append(result['preds'])
             test_trues.append(result['trues'])
         
-        test_preds = make_strs(test_preds, self.tokenizer, self.args.pad_token, self.args.eos_token)
-        test_trues = make_strs(test_trues, self.tokenizer, self.args.pad_token, self.args.eos_token)
+        test_preds = make_basic_strs(test_preds, self.tokenizer, self.args.pad_token, self.args.eos_token)
+        test_trues = make_basic_strs(test_trues, self.tokenizer, self.args.pad_token, self.args.eos_token)
         
         assert len(test_preds) == len(test_trues)
-        assert len(test_preds) % len(self.args.slot_list) == 0
+        assert len(test_preds) % len(self.args.test_slot_list) == 0
         
-        test_joint_goal_acc = get_joint_goal_acc(test_preds, test_trues, len(self.args.slot_list))
-        test_slot_accs = get_slot_acc(test_preds, test_trues, self.args.slot_list, trg_domain=self.args.trg_domain)
+        test_joint_goal_acc = get_joint_goal_acc(test_preds, test_trues, self.args.test_slot_list, trg_domain=self.args.trg_domain)
+        test_slot_accs = get_slot_acc(test_preds, test_trues, self.args.test_slot_list, trg_domain=self.args.trg_domain)
         
         print(f"Test Joint Goal Acc: {test_joint_goal_acc}")
         print("Test Slot Acc")

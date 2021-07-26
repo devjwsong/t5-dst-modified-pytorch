@@ -33,6 +33,9 @@ def parse_data(args, from_dir, to_dir):
             f"{args.test_prefix}_utters": [],
             f"{args.test_prefix}_states": [],
         }
+        
+        train_slot_descs = {k: v for k, v in slot_descs.items() if trg_domain not in k}
+        valid_slot_descs, test_slot_descs = copy.deepcopy(slot_descs), copy.deepcopy(slot_descs)
 
         print(f"Zero-shot: {trg_domain}")
         checked = {}
@@ -44,7 +47,12 @@ def parse_data(args, from_dir, to_dir):
                         continue
 
                     obj = data[dialogue_id]
-                    utters, states = parse_dialogue(args, obj)
+                    if prefix == args.train_prefix:
+                        utters, states = parse_dialogue(args, obj, train_slot_descs)
+                    elif prefix == args.valid_prefix:
+                        utters, states = parse_dialogue(args, obj, valid_slot_descs)
+                    elif prefix == args.test_prefix:
+                        utters, states = parse_dialogue(args, obj, test_slot_descs)
 
                     if utters is not None:
                         total_data[f"{prefix}_utters"].append(utters)
@@ -57,9 +65,13 @@ def parse_data(args, from_dir, to_dir):
         save_files(final_dir, args.valid_prefix, total_data[f"{args.valid_prefix}_utters"], total_data[f"{args.valid_prefix}_states"])
         save_files(final_dir, args.test_prefix, total_data[f"{args.test_prefix}_utters"], total_data[f"{args.test_prefix}_states"])
         
-        print("Saving the slot description json file...")
-        with open(f"{final_dir}/{args.slot_descs_prefix}.json", 'w') as f:
-            json.dump(slot_descs, f)
+        print("Saving the slot description json files...")
+        with open(f"{final_dir}/{args.train_prefix}_{args.slot_descs_prefix}.json", 'w') as f:
+            json.dump(train_slot_descs, f)
+        with open(f"{final_dir}/{args.valid_prefix}_{args.slot_descs_prefix}.json", 'w') as f:
+            json.dump(valid_slot_descs, f)
+        with open(f"{final_dir}/{args.test_prefix}_{args.slot_descs_prefix}.json", 'w') as f:
+            json.dump(test_slot_descs, f)
 
         print("Calculating additional infos...")
         num_train_utters = count_utters(total_data[f"{args.train_prefix}_utters"])
@@ -105,3 +117,58 @@ def make_id_maps(args, data, valid_list, test_list, trg_domain):
                 id_maps[prefix][domain].append(dialogue_id)
             
     return id_maps
+
+
+def parse_dialogue(args, obj, slot_descs):
+    goal = obj['goal']
+    domains = get_domains(goal)
+    
+    state_template = {v: "none" for k, v in slot_descs.items()}
+    
+    log = obj['log']
+    utters = [""] * len(log)
+    states = [copy.deepcopy(state_template) for i in range(len(utters))]
+    prev_speaker = ""
+    for t, turn in enumerate(log):
+        metadata = turn['metadata']
+        if len(metadata) > 0:
+            speaker = "system"
+        else:
+            speaker = "user"
+            
+        if prev_speaker == speaker:
+            utters = utters[:t]
+            states = states[:t]
+            break
+
+        if t == 0:
+            assert speaker == "user"
+            
+        text = f"{speaker}:{normalize_text(turn['text'])}"
+        utters[t] = text
+        
+        temp_state = {}
+        for domain, state in metadata.items():
+            if domain in domains:
+                book = state['book']
+                semi = state['semi']
+                
+                for slot, value in book.items():
+                    if slot not in ['booked', 'ticket']:
+                        slot_type = f"{domain}-book {slot}"
+                        normalized_value = normalize_label(slot_type, value)
+                        temp_state[slot_type] = normalized_value
+                
+                for slot, value in semi.items():
+                    slot_type = f"{domain}-{slot}"
+                    normalized_value = normalize_label(slot_type, value)
+                    temp_state[slot_type] = normalized_value
+        
+        for slot_type, value in temp_state.items():
+            states[t][slot_descs[slot_type]] = value
+            
+        prev_speaker = speaker
+        
+    assert len(utters) == len(states)
+    
+    return utters, states

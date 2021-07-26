@@ -1,4 +1,4 @@
-python src/data_utils/process_raw_data.py \
+python src/data/process_raw_data.py \
     --data_dir="/data/jaewoo_song/t5-dst-modified-pytorch/data" \
     --raw_dir="raw" \
     --cached_dir="cached" \

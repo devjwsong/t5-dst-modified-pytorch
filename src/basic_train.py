@@ -1,9 +1,9 @@
-from data_utils.custom_dataset import *
+from basic_dataset import *
 from torch.utils.data import DataLoader
 from pytorch_lightning import Trainer, seed_everything
 from pytorch_lightning.callbacks import ModelCheckpoint
 from pytorch_lightning.callbacks import EarlyStopping
-from train_module import *
+from basic_module import *
 
 import argparse
 import os
@@ -12,7 +12,7 @@ import json
 
 def run(args):
     print("Loading the tokenizer & model...")
-    pt_module = TrainModule(args)
+    pt_module = BasicModule(args)
     
     args.src_max_len = min(args.src_max_len, pt_module.model.config.n_positions)
     
@@ -20,14 +20,20 @@ def run(args):
     # Zero-shot
     if args.trg_domain is not None:
         args.data_name = f"{args.data_name}/{args.trg_domain}"
-    train_set = DstDataset(args.train_prefix, args, pt_module.tokenizer)
-    valid_set = DstDataset(args.valid_prefix, args, pt_module.tokenizer)
-    test_set = DstDataset(args.test_prefix, args, pt_module.tokenizer)
-    ppd = DstPadCollate(pad_id=args.pad_id)
+    train_set = BasicDataset(args.train_prefix, args, pt_module.tokenizer)
+    valid_set = BasicDataset(args.valid_prefix, args, pt_module.tokenizer)
+    test_set = BasicDataset(args.test_prefix, args, pt_module.tokenizer)
+    ppd = BasicPadCollate(pad_id=args.pad_id)
     
-    with open(f"{args.data_dir}/{args.cached_dir}/{args.data_name}/{args.slot_descs_prefix}.json", 'r') as f:
-        slot_descs = json.load(f)
-    args.slot_list = [v for k, v in slot_descs.items()]
+    with open(f"{args.data_dir}/{args.cached_dir}/{args.data_name}/{args.train_prefix}_{args.slot_descs_prefix}.json", 'r') as f:
+        train_slot_descs = json.load(f)
+    args.train_slot_list = [v for k, v in train_slot_descs.items()]
+    with open(f"{args.data_dir}/{args.cached_dir}/{args.data_name}/{args.valid_prefix}_{args.slot_descs_prefix}.json", 'r') as f:
+        valid_slot_descs = json.load(f)
+    args.valid_slot_list = [v for k, v in valid_slot_descs.items()]
+    with open(f"{args.data_dir}/{args.cached_dir}/{args.data_name}/{args.test_prefix}_{args.slot_descs_prefix}.json", 'r') as f:
+        test_slot_descs = json.load(f)
+    args.test_slot_list = [v for k, v in test_slot_descs.items()]
     
     seed_everything(args.seed, workers=True)
     train_loader = DataLoader(train_set, collate_fn=ppd.pad_collate, shuffle=True, batch_size=args.train_batch_size, num_workers=args.num_workers, pin_memory=True)
@@ -97,7 +103,6 @@ if __name__=="__main__":
     parser.add_argument("--trg_max_len", type=int, default=128)
     parser.add_argument("--learning_rate", type=float, default=1e-4)
     parser.add_argument("--warmup_ratio", type=float, default=0.0)
-    parser.add_argument("--sigmoid_threshold", type=float, default=0.5)
     parser.add_argument("--max_grad_norm", type=float, default=1.0)
     parser.add_argument("--min_delta", type=float, default=1e-4)
     parser.add_argument("--patience", type=int, default=1)

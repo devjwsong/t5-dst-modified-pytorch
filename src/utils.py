@@ -1,4 +1,4 @@
-def make_strs(tensor_list, tokenizer, pad_token, eos_token):
+def make_basic_strs(tensor_list, tokenizer, pad_token, eos_token):
     trg_ids_list = []
     for tensor in tensor_list:
         trg_ids_list += tensor.tolist()
@@ -12,11 +12,41 @@ def make_strs(tensor_list, tokenizer, pad_token, eos_token):
     return results
 
 
-def get_joint_goal_acc(preds, trues, num_slots, round_num=4):
+def make_modified_strs(tensor_list, tokenizer, pad_token, eos_token, extra_tokens):
+    trg_ids_list = []
+    for tensor in tensor_list:
+        trg_ids_list += tensor.tolist()
+    
+    results = []
+    for trg_ids in trg_ids_list:
+        values = []
+        trg_tokens = tokenizer.convert_ids_to_tokens(trg_ids)
+        assert trg_tokens[0] == pad_token and trg_tokens[-1]== eos_token
+        trg_tokens = trg_tokens[1:-1]
+        cur_tokens = []
+        for token in trg_tokens:
+            if token in extra_tokens:
+                if len(cur_tokens) > 0:
+                    values.append(tokenizer.convert_tokens_to_string(cur_tokens).strip())
+                cur_tokens = []
+            else:
+                cur_tokens.append(token)
+        
+        results += values
+        
+    return results    
+    
+
+def get_joint_goal_acc(preds, trues, slot_list, trg_domain=None, round_num=4):
     N, corr = 0, 0
-    for start in range(0, len(trues), num_slots):
-        pred_state = preds[start:start+num_slots]
-        true_state = trues[start:start+num_slots]
+    for start in range(0, len(trues), len(slot_list)):
+        pred_state = preds[start:start+len(slot_list)]
+        true_state = trues[start:start+len(slot_list)]
+        
+        if trg_domain is not None:
+            pred_state = [pred_state[i] for i, slot in enumerate(slot_list) if trg_domain in slot]
+            true_state = [true_state[i] for i, slot in enumerate(slot_list) if trg_domain in slot]
+            assert len(pred_state) == len(true_state)
         
         N += 1
         if pred_state == true_state:
@@ -28,6 +58,7 @@ def get_joint_goal_acc(preds, trues, num_slots, round_num=4):
 def get_slot_acc(preds, trues, slot_list, trg_domain=None, round_num=4):
     counts = {slot: 0 for slot in slot_list}
     results = {slot: 0 for slot in slot_list}
+    corr_count, total_count = 0, 0
     
     for start in range(0, len(trues), len(slot_list)):
         pred_state = preds[start:start+len(slot_list)]
@@ -35,28 +66,34 @@ def get_slot_acc(preds, trues, slot_list, trg_domain=None, round_num=4):
         
         for i in range(len(true_state)):
             slot = slot_list[i]
-            if true_state[i] != 'none':
-                counts[slot] += 1
-                if pred_state[i] == true_state[i]:
-                    results[slot] += 1
+            counts[slot] += 1
+            
+            if trg_domain is None or (trg_domain is not None and trg_domain in slot):
+                total_count += 1
+                
+            if pred_state[i] == true_state[i]:
+                results[slot] += 1
+                
+                if trg_domain is None or (trg_domain is not None and trg_domain in slot):
+                    corr_count += 1
     
-    total_sum = 0.0
-    num_slots = len(slot_list)
-    if trg_domain is not None:
-        num_slots = 0
-        for slot in slot_list:
-            if trg_domain in slot:
-                num_slots += 1
+#     total_sum = 0.0
+#     num_slots = len(slot_list)
+#     if trg_domain is not None:
+#         num_slots = 0
+#         for slot in slot_list:
+#             if trg_domain in slot:
+#                 num_slots += 1
     
-    for slot, corr_count in results.items():
+    for slot, slot_count in results.items():
         try:
-            results[slot] = round(corr_count / counts[slot], round_num)
+            results[slot] = round(slot_count / counts[slot], round_num)
         except ZeroDivisionError:
             results[slot] = 0.0
-        if trg_domain is None or (trg_domain is not None and trg_domain in slot):
-            total_sum += results[slot]
+#         if trg_domain is None or (trg_domain is not None and trg_domain in slot):
+#             total_sum += results[slot]
         
-    results['mean'] = round(total_sum / num_slots, round_num)
+    results['mean'] = round(corr_count / total_count, round_num)
     
     return results
     

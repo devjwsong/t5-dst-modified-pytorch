@@ -1,9 +1,9 @@
-python src/main.py \
+python src/basic_train.py \
     --seed=0 \
     --data_dir="/data/jaewoo_song/t5-dst-modified-pytorch/data" \
     --cached_dir="cached" \
     --data_name="multiwoz_zeroshot" \
-    --trg_domain="hotel" \
+    --trg_domain="taxi" \
     --model_name="t5-small" \
     --train_prefix="train" \
     --valid_prefix="valid" \
@@ -22,4 +22,5 @@ python src/main.py \
     --patience=3 \
     --sep_token="<sep>" \
     --gpu="1" \
-    --log_dir="/data/jaewoo_song/t5-dst-modified-pytorch/"
+    --log_dir="/data/jaewoo_song/t5-dst-modified-pytorch/" \
+    --use_cached

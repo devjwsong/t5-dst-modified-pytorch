@@ -45,60 +45,6 @@ def get_domains(goal):
     return domains
 
 
-def parse_dialogue(args, obj):
-    goal = obj['goal']
-    domains = get_domains(goal)
-    state_template = {v: "none" for k, v in slot_descs.items()}
-    
-    log = obj['log']
-    utters = [""] * len(log)
-    states = [copy.deepcopy(state_template) for i in range(len(utters))]
-    prev_speaker = ""
-    for t, turn in enumerate(log):
-        metadata = turn['metadata']
-        if len(metadata) > 0:
-            speaker = "system"
-        else:
-            speaker = "user"
-            
-        if prev_speaker == speaker:
-            utters = utters[:t]
-            states = states[:t]
-            break
-
-        if t == 0:
-            assert speaker == "user"
-            
-        text = f"{speaker}:{normalize_text(turn['text'])}"
-        utters[t] = text
-        
-        temp_state = {}
-        for domain, state in metadata.items():
-            if domain in domains:
-                book = state['book']
-                semi = state['semi']
-                
-                for slot, value in book.items():
-                    if slot not in ['booked', 'ticket']:
-                        slot_type = f"{domain}-book {slot}"
-                        normalized_value = normalize_label(slot_type, value)
-                        temp_state[slot_type] = normalized_value
-                
-                for slot, value in semi.items():
-                    slot_type = f"{domain}-{slot}"
-                    normalized_value = normalize_label(slot_type, value)
-                    temp_state[slot_type] = normalized_value
-        
-        for slot_type, value in temp_state.items():
-            states[t][slot_descs[slot_type]] = value
-            
-        prev_speaker = speaker
-        
-    assert len(utters) == len(states)
-    
-    return utters, states
-
-
 def normalize_time(text):
     text = re.sub("(\d{1})(a\.?m\.?|p\.?m\.?)", r"\1 \2", text) # am/pm without space
     text = re.sub("(^| )(\d{1,2}) (a\.?m\.?|p\.?m\.?)", r"\1\2:00 \3", text) # am/pm short to long form

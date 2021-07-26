@@ -13,8 +13,12 @@ def parse_data(args, from_dir, to_dir):
     valid_list = [valid_name.strip() for valid_name in valid_list]
     test_list = [test_name.strip() for test_name in test_list]
         
-    print("Saving the slot description json file...")
-    with open(f"{to_dir}/{args.slot_descs_prefix}.json", 'w') as f:
+    print("Saving the slot description json files...")
+    with open(f"{to_dir}/{args.train_prefix}_{args.slot_descs_prefix}.json", 'w') as f:
+        json.dump(slot_descs, f)
+    with open(f"{to_dir}/{args.valid_prefix}_{args.slot_descs_prefix}.json", 'w') as f:
+        json.dump(slot_descs, f)
+    with open(f"{to_dir}/{args.test_prefix}_{args.slot_descs_prefix}.json", 'w') as f:
         json.dump(slot_descs, f)
         
     print("Parsing data...")
@@ -91,3 +95,57 @@ def make_id_maps(args, data, valid_list, test_list, trg_domain=None):
                 id_maps[prefix][domain].append(dialogue_id)
             
     return id_maps
+
+
+def parse_dialogue(args, obj):
+    goal = obj['goal']
+    domains = get_domains(goal)
+    state_template = {v: "none" for k, v in slot_descs.items()}
+    
+    log = obj['log']
+    utters = [""] * len(log)
+    states = [copy.deepcopy(state_template) for i in range(len(utters))]
+    prev_speaker = ""
+    for t, turn in enumerate(log):
+        metadata = turn['metadata']
+        if len(metadata) > 0:
+            speaker = "system"
+        else:
+            speaker = "user"
+            
+        if prev_speaker == speaker:
+            utters = utters[:t]
+            states = states[:t]
+            break
+
+        if t == 0:
+            assert speaker == "user"
+            
+        text = f"{speaker}:{normalize_text(turn['text'])}"
+        utters[t] = text
+        
+        temp_state = {}
+        for domain, state in metadata.items():
+            if domain in domains:
+                book = state['book']
+                semi = state['semi']
+                
+                for slot, value in book.items():
+                    if slot not in ['booked', 'ticket']:
+                        slot_type = f"{domain}-book {slot}"
+                        normalized_value = normalize_label(slot_type, value)
+                        temp_state[slot_type] = normalized_value
+                
+                for slot, value in semi.items():
+                    slot_type = f"{domain}-{slot}"
+                    normalized_value = normalize_label(slot_type, value)
+                    temp_state[slot_type] = normalized_value
+        
+        for slot_type, value in temp_state.items():
+            states[t][slot_descs[slot_type]] = value
+            
+        prev_speaker = speaker
+        
+    assert len(utters) == len(states)
+    
+    return utters, states
