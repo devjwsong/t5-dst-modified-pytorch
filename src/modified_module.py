@@ -76,8 +76,10 @@ class ModifiedModule(pl.LightningModule):
             valid_preds.append(result['preds'])
             valid_trues.append(result['trues'])
         
-        valid_preds = make_modified_strs(valid_preds, self.tokenizer, self.args.pad_token, self.args.eos_token, self.tokenizer.additional_special_tokens)
-        valid_trues = make_modified_strs(valid_trues, self.tokenizer, self.args.pad_token, self.args.eos_token, self.tokenizer.additional_special_tokens)
+        valid_preds, valid_trues = make_modified_strs(
+            valid_preds, valid_trues, 
+            self.tokenizer, self.args.pad_token, self.args.eos_token, self.tokenizer.additional_special_tokens
+        )
         
         assert len(valid_preds) == len(valid_trues)
         assert len(valid_preds) % len(self.args.valid_slot_list) == 0
@@ -106,9 +108,11 @@ class ModifiedModule(pl.LightningModule):
             test_preds.append(result['preds'])
             test_trues.append(result['trues'])
         
-        test_preds = make_modified_strs(test_preds, self.tokenizer, self.args.pad_token, self.args.eos_token, self.tokenizer.additional_special_tokens)
-        test_trues = make_modified_strs(test_trues, self.tokenizer, self.args.pad_token, self.args.eos_token, self.tokenizer.additional_special_tokens)
-        
+        test_preds, test_trues = make_modified_strs(
+            test_preds, test_trues, 
+            self.tokenizer, self.args.pad_token, self.args.eos_token, self.tokenizer.additional_special_tokens
+        )
+                
         assert len(test_preds) == len(test_trues)
         assert len(test_preds) % len(self.args.test_slot_list) == 0
         

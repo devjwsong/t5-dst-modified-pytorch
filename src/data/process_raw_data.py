@@ -4,7 +4,6 @@ import process_multiwoz_fullshot, process_multiwoz_zeroshot
 
 
 data_names = ['multiwoz']
-seed_list = [0, 5, 10, 50, 100]
 
 
 def run(args, cached_dir):    

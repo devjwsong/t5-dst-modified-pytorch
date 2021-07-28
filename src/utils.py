@@ -12,29 +12,46 @@ def make_basic_strs(tensor_list, tokenizer, pad_token, eos_token):
     return results
 
 
-def make_modified_strs(tensor_list, tokenizer, pad_token, eos_token, extra_tokens):
-    trg_ids_list = []
-    for tensor in tensor_list:
-        trg_ids_list += tensor.tolist()
+def make_modified_strs(pred_list, true_list, tokenizer, pad_token, eos_token, extra_tokens):
+    pred_ids_list,  true_ids_list = [], []
+    for t in range(len(true_list)):
+        pred_ids_list += pred_list[t].tolist()
+        true_ids_list += true_list[t].tolist()
     
-    results = []
-    for trg_ids in trg_ids_list:
-        values = []
-        trg_tokens = tokenizer.convert_ids_to_tokens(trg_ids)
-        assert trg_tokens[0] == pad_token and trg_tokens[-1]== eos_token
-        trg_tokens = trg_tokens[1:-1]
-        cur_tokens = []
-        for token in trg_tokens:
-            if token in extra_tokens:
-                if len(cur_tokens) > 0:
-                    values.append(tokenizer.convert_tokens_to_string(cur_tokens).strip())
-                cur_tokens = []
-            else:
-                cur_tokens.append(token)
+    pred_results, true_results = [], []
+    for t in range(len(true_ids_list)):
+        true_tokens = tokenizer.convert_ids_to_tokens(true_ids_list[t])
+        pred_tokens = tokenizer.convert_ids_to_tokens(pred_ids_list[t])
         
-        results += values
+        true_tokens = [token for token in true_tokens if token != pad_token and token != eos_token]
+        pred_tokens = [token for token in pred_tokens if token != pad_token and token != eos_token]
+    
+        def get_values(tokens):
+            cur_tokens, values = [], []
+            for token in tokens:
+                if token in extra_tokens:
+                    if len(cur_tokens) > 0:
+                        values.append(tokenizer.convert_tokens_to_string(cur_tokens).replace(pad_token, "").replace(eos_token, "").strip())
+                    cur_tokens = []
+                else:
+                    cur_tokens.append(token)
+            
+            return values
         
-    return results    
+        true_values = get_values(true_tokens)
+        pred_values = get_values(pred_tokens)
+        
+        if len(pred_values) >= len(true_values):
+            pred_values = pred_values[:len(true_values)]
+        else:
+            pred_values += ["none"] * (len(true_values)-len(pred_values))
+            
+        assert len(pred_values) == len(true_values)
+        
+        pred_results += pred_values
+        true_results += true_values
+        
+    return pred_results, true_results
     
 
 def get_joint_goal_acc(preds, trues, slot_list, trg_domain=None, round_num=4):

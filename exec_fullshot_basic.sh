@@ -1,6 +1,6 @@
 python src/basic_train.py \
     --seed=0 \
-    --data_dir="/data/jaewoo_song/t5-dst-modified-pytorch/data" \
+    --data_dir="data" \
     --cached_dir="cached" \
     --data_name="multiwoz_fullshot" \
     --model_name="t5-small" \
@@ -20,6 +20,5 @@ python src/basic_train.py \
     --min_delta=1e-4 \
     --patience=3 \
     --sep_token="<sep>" \
-    --gpu="1" \
-    --log_dir="/data/jaewoo_song/t5-dst-modified-pytorch/" \
-    --use_cached
+    --gpu="0" \
+    --log_dir="./"
