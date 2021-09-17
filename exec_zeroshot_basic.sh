@@ -11,7 +11,7 @@ python src/basic_train.py \
     --slot_descs_prefix="slot_descs" \
     --num_epochs=5 \
     --train_batch_size=32 \
-    --eval_batch_size=16 \
+    --eval_batch_size=8 \
     --num_workers=4 \
     --src_max_len=512 \
     --trg_max_len=64 \

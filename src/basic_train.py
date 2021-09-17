@@ -35,7 +35,6 @@ def run(args):
         test_slot_descs = json.load(f)
     args.test_slot_list = [v for k, v in test_slot_descs.items()]
     
-    seed_everything(args.seed, workers=True)
     train_loader = DataLoader(train_set, collate_fn=ppd.pad_collate, shuffle=True, batch_size=args.train_batch_size, num_workers=args.num_workers, pin_memory=True)
     valid_loader = DataLoader(valid_set, collate_fn=ppd.pad_collate, batch_size=args.eval_batch_size, num_workers=args.num_workers, pin_memory=True)
     test_loader = DataLoader(test_set, collate_fn=ppd.pad_collate, batch_size=args.eval_batch_size, num_workers=args.num_workers, pin_memory=True)
@@ -64,6 +63,7 @@ def run(args):
     )
 
     print("Train starts.")
+    seed_everything(args.seed, workers=True)  # For data shuffling fix
     trainer = Trainer(
         gpus=args.gpu,
         max_epochs=args.num_epochs,
@@ -90,7 +90,7 @@ if __name__=="__main__":
     parser.add_argument("--cached_dir", type=str, default="cached")
     parser.add_argument("--data_name", type=str, required=True)
     parser.add_argument("--trg_domain", type=str, required=False)
-    parser.add_argument("--model_name", type=str, required=True)
+    parser.add_argument("--model_name", type=str, default="t5-small")
     parser.add_argument("--train_prefix", type=str, default="train")
     parser.add_argument("--valid_prefix", type=str, default="valid")
     parser.add_argument("--test_prefix", type=str, default="test")
@@ -114,9 +114,8 @@ if __name__=="__main__":
     args = parser.parse_args()
     
     assert args.data_name in ["multiwoz_fullshot", "multiwoz_zeroshot"]
-    assert args.model_name in ["t5-small", "t5-base"]
     if "zeroshot" in args.data_name:
-        assert args.trg_domain is not None
+        assert args.trg_domain in ["attraction", "hotel", "restaurant", "taxi", "train"]
     
     print("#"*50 + "Running spec" + "#"*50)
     print(args)

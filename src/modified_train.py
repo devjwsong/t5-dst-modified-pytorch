@@ -118,7 +118,7 @@ if __name__=="__main__":
     assert args.data_name in ["multiwoz_fullshot", "multiwoz_zeroshot"]
     assert args.model_name in ["t5-small", "t5-base"]
     if "zeroshot" in args.data_name:
-        assert args.trg_domain is not None
+        assert args.trg_domain in ["attraction", "hotel", "restaurant", "taxi", "train"]
     
     print("#"*50 + "Running spec" + "#"*50)
     print(args)
