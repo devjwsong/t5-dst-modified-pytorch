@@ -29,14 +29,13 @@ def run(args, cached_dir):
 
 if __name__=='__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument("--seed", type=int, default=0)
-    parser.add_argument("--data_dir", type=str, default="data")
-    parser.add_argument("--raw_dir", type=str, default="raw")
-    parser.add_argument("--cached_dir", type=str, default="cached")
-    parser.add_argument('--train_prefix', type=str, default="train")
-    parser.add_argument('--valid_prefix', type=str, default="valid")
-    parser.add_argument('--test_prefix', type=str, default="test")
-    parser.add_argument('--slot_descs_prefix', type=str, default="slot_descs")
+    parser.add_argument("--data_dir", type=str, default="data", help="The root directory for the entire data files.")
+    parser.add_argument("--raw_dir", type=str, default="raw", help="The directory which contains raw data files.")
+    parser.add_argument("--cached_dir", type=str, default="cached", help="The directory for cached files after processing.")
+    parser.add_argument('--train_prefix', type=str, default="train", help="The train data prefix.")
+    parser.add_argument('--valid_prefix', type=str, default="valid", help="The validation data prefix.")
+    parser.add_argument('--test_prefix', type=str, default="test", help="The test data prefix.")
+    parser.add_argument('--slot_descs_prefix', type=str, default="slot_descs", help="The slot description file prefix.")
     
     args = parser.parse_args()
     
