@@ -48,13 +48,13 @@ data
 
 | Argument              | Type  | Description                                      | Default        |
 | --------------------- | ----- | ------------------------------------------------ | -------------- |
-| `--data_dir`          | `str` | The root directory for the entire data files.    | `"data"`       |
-| `--raw_dir`           | `str` | The directory which contains raw data files.     | `"raw"`        |
-| `--cached_dir`        | `str` | The directory for cached files after processing. | `"cached"`     |
-| `--train_prefix`      | `str` | The train data prefix.                           | `"train"`      |
-| `--valid_prefix`      | `str` | The validation data prefix.                      | `"valid"`      |
-| `--test_prefix`       | `str` | The test data prefix.                            | `"test"`       |
-| `--slot_descs_prefix` | `str` | The slot description file prefix.                | `"slot_descs"` |
+| `data_dir`          | `str` | The root directory for the entire data files.    | `"data"`       |
+| `raw_dir`           | `str` | The directory which contains raw data files.     | `"raw"`        |
+| `cached_dir`        | `str` | The directory for cached files after processing. | `"cached"`     |
+| `train_prefix`      | `str` | The train data prefix.                           | `"train"`      |
+| `valid_prefix`      | `str` | The validation data prefix.                      | `"valid"`      |
+| `test_prefix`       | `str` | The test data prefix.                            | `"test"`       |
+| `slot_descs_prefix` | `str` | The slot description file prefix.                | `"slot_descs"` |
 
 <br/>
 
@@ -64,31 +64,31 @@ The basic training is for the original *T5-dst* setting.
 
 | Argument              | Type         | Description                                                  | Default             |
 | --------------------- | ------------ | ------------------------------------------------------------ | ------------------- |
-| `--seed`              | `int`        | The random seed.                                             | `0`                 |
-| `--data_dir`          | `str`        | The root directory for the entire data files.                | `"data"`            |
-| `--cached_dir`        | `str`        | The directory for cached files after processing.             | `"cached"`          |
-| `--data_name`         | `str`        | The data name to train/evaluate. (`"multiwoz_fullshot"` or `"multiwoz_zeroshot"`) | *YOU MUST SPECIFY*  |
-| `--trg_domain`        | `str`        | The target domain to be excluded in zero-shot setting. (`"attraction"` or `"hotel"` or `"restaurant"` or `"taxi"` or `"train"`) | *YOU MIGHT SPECIFY* |
-| `--model_name`        | `str`        | The T5 model type. (`"t5-small"` or `"t5-base"`)             | `"t5-small"`        |
-| `--train_prefix`      | `str`        | The train data prefix.                                       | `"train"`           |
-| `--valid_prefix`      | `str`        | The validation data prefix.                                  | `"valid"`           |
-| `--test_prefix`       | `str`        | The test data prefix.                                        | `"test"`            |
-| `--slot_descs_prefix` | `str`        | The slot description file prefix.                            | `"slot_descs"`      |
-| `--num_epochs`        | `str`        | The total number of training epochs.                         | `10`                |
-| `--train_batch_size`  | `int`        | The batch size for train data loader.                        | `32`                |
-| `--eval_batch_size`   | `int`        | The batch size for evaluation data loader.                   | `8`                 |
-| `--num_workers`       | `int`        | The number of subprocesses for data loading.                 | `0`                 |
-| `--src_max_len`       | `int`        | The maximum length of the source sequence.                   | `512`               |
-| `--trg_max_len`       | `int`        | The maximum length of the target sequence.                   | `128`               |
-| `--learning_rate`     | `float`      | The initial learning rate.                                   | `1e-4`              |
-| `--warmup_ratio`      | `float`      | The ratio of warmup steps to total training steps.           | `0.0`               |
-| `--max_grad_norm`     | `float`      | The maximum value of gradient.                               | `1.0`               |
-| `--min_delta`         | `float`      | The minimum delta value for evaluation metric.               | `1e-4`              |
-| `--patience`          | `int`        | The number patience epochs before early stopping.            | `3`                 |
-| `--sep_token`         | `str`        | The special token for separation.                            | `"<sep>"`           |
-| `--gpu`               | `str`        | The indices of GPUs. (ex: `"0, 1"`)                          | `"0"`               |
-| `--log_dir`           | `str`        | The location of lightning log directory.                     | `"./"`              |
-| `--use_cached`        | `store_true` | Using cached data or not?                                    | -                   |
+| `seed`              | `int`        | The random seed.                                             | `0`                 |
+| `data_dir`          | `str`        | The root directory for the entire data files.                | `"data"`            |
+| `cached_dir`        | `str`        | The directory for cached files after processing.             | `"cached"`          |
+| `data_name`         | `str`        | The data name to train/evaluate. (`"multiwoz_fullshot"` or `"multiwoz_zeroshot"`) | *YOU MUST SPECIFY*  |
+| `trg_domain`        | `str`        | The target domain to be excluded in zero-shot setting. (`"attraction"` or `"hotel"` or `"restaurant"` or `"taxi"` or `"train"`) | *YOU MIGHT SPECIFY* |
+| `model_name`        | `str`        | The T5 model type. (`"t5-small"` or `"t5-base"`)             | `"t5-small"`        |
+| `train_prefix`      | `str`        | The train data prefix.                                       | `"train"`           |
+| `valid_prefix`      | `str`        | The validation data prefix.                                  | `"valid"`           |
+| `test_prefix`       | `str`        | The test data prefix.                                        | `"test"`            |
+| `slot_descs_prefix` | `str`        | The slot description file prefix.                            | `"slot_descs"`      |
+| `num_epochs`        | `str`        | The total number of training epochs.                         | `10`                |
+| `train_batch_size`  | `int`        | The batch size for train data loader.                        | `32`                |
+| `eval_batch_size`   | `int`        | The batch size for evaluation data loader.                   | `8`                 |
+| `num_workers`       | `int`        | The number of subprocesses for data loading.                 | `0`                 |
+| `src_max_len`       | `int`        | The maximum length of the source sequence.                   | `512`               |
+| `trg_max_len`       | `int`        | The maximum length of the target sequence.                   | `128`               |
+| `learning_rate`     | `float`      | The initial learning rate.                                   | `1e-4`              |
+| `warmup_ratio`      | `float`      | The ratio of warmup steps to total training steps.           | `0.0`               |
+| `max_grad_norm`     | `float`      | The maximum value of gradient.                               | `1.0`               |
+| `min_delta`         | `float`      | The minimum delta value for evaluation metric.               | `1e-4`              |
+| `patience`          | `int`        | The number patience epochs before early stopping.            | `3`                 |
+| `sep_token`         | `str`        | The special token for separation.                            | `"<sep>"`           |
+| `gpu`               | `str`        | The indices of GPUs. (ex: `"0, 1"`)                          | `"0"`               |
+| `log_dir`           | `str`        | The location of lightning log directory.                     | `"./"`              |
+| `use_cached`        | `store_true` | Using cached data or not?                                    | -                   |
 
 <br/>
 
@@ -98,32 +98,32 @@ The basic training is for the modified *T5-dst* setting.
 
 | Argument              | Type         | Description                                                  | Default             |
 | --------------------- | ------------ | ------------------------------------------------------------ | ------------------- |
-| `--seed`              | `int`        | The random seed.                                             | `0`                 |
-| `--data_dir`          | `str`        | The root directory for the entire data files.                | `"data"`            |
-| `--cached_dir`        | `str`        | The directory for cached files after processing.             | `"cached"`          |
-| `--data_name`         | `str`        | The data name to train/evaluate. (`"multiwoz_fullshot"` or `"multiwoz_zeroshot"`) | *YOU MUST SPECIFY*  |
-| `--trg_domain`        | `str`        | The target domain to be excluded in zero-shot setting. (`"attraction"` or `"hotel"` or `"restaurant"` or `"taxi"` or `"train"`) | *YOU MIGHT SPECIFY* |
-| `--model_name`        | `str`        | The T5 model type. (`"t5-small"` or `"t5-base"`)             | `"t5-small"`        |
-| `--train_prefix`      | `str`        | The train data prefix.                                       | `"train"`           |
-| `--valid_prefix`      | `str`        | The validation data prefix.                                  | `"valid"`           |
-| `--test_prefix`       | `str`        | The test data prefix.                                        | `"test"`            |
-| `--slot_descs_prefix` | `str`        | The slot description file prefix.                            | `"slot_descs"`      |
-| `--num_epochs`        | `str`        | The total number of training epochs.                         | `10`                |
-| `--train_batch_size`  | `int`        | The batch size for train data loader.                        | `32`                |
-| `--eval_batch_size`   | `int`        | The batch size for evaluation data loader.                   | `8`                 |
-| `--num_workers`       | `int`        | The number of subprocesses for data loading.                 | `0`                 |
-| `--src_max_len`       | `int`        | The maximum length of the source sequence.                   | `512`               |
-| `--trg_max_len`       | `int`        | The maximum length of the target sequence.                   | `128`               |
-| `--max_extras`        | `int`        | The maximum number of slot types to include in one input.    | `5`                 |
-| `--learning_rate`     | `float`      | The initial learning rate.                                   | `1e-4`              |
-| `--warmup_ratio`      | `float`      | The ratio of warmup steps to total training steps.           | `0.0`               |
-| `--max_grad_norm`     | `float`      | The maximum value of gradient.                               | `1.0`               |
-| `--min_delta`         | `float`      | The minimum delta value for evaluation metric.               | `1e-4`              |
-| `--patience`          | `int`        | The number patience epochs before early stopping.            | `3`                 |
-| `--sep_token`         | `str`        | The special token for separation.                            | `"<sep>"`           |
-| `--gpu`               | `str`        | The indices of GPUs. (ex: `"0, 1"`)                          | `"0"`               |
-| `--log_dir`           | `str`        | The location of lightning log directory.                     | `"./"`              |
-| `--use_cached`        | `store_true` | Using cached data or not?                                    | -                   |
+| `seed`              | `int`        | The random seed.                                             | `0`                 |
+| `data_dir`          | `str`        | The root directory for the entire data files.                | `"data"`            |
+| `cached_dir`        | `str`        | The directory for cached files after processing.             | `"cached"`          |
+| `data_name`         | `str`        | The data name to train/evaluate. (`"multiwoz_fullshot"` or `"multiwoz_zeroshot"`) | *YOU MUST SPECIFY*  |
+| `trg_domain`        | `str`        | The target domain to be excluded in zero-shot setting. (`"attraction"` or `"hotel"` or `"restaurant"` or `"taxi"` or `"train"`) | *YOU MIGHT SPECIFY* |
+| `model_name`        | `str`        | The T5 model type. (`"t5-small"` or `"t5-base"`)             | `"t5-small"`        |
+| `train_prefix`      | `str`        | The train data prefix.                                       | `"train"`           |
+| `valid_prefix`      | `str`        | The validation data prefix.                                  | `"valid"`           |
+| `test_prefix`       | `str`        | The test data prefix.                                        | `"test"`            |
+| `slot_descs_prefix` | `str`        | The slot description file prefix.                            | `"slot_descs"`      |
+| `num_epochs`        | `str`        | The total number of training epochs.                         | `10`                |
+| `train_batch_size`  | `int`        | The batch size for train data loader.                        | `32`                |
+| `eval_batch_size`   | `int`        | The batch size for evaluation data loader.                   | `8`                 |
+| `num_workers`       | `int`        | The number of subprocesses for data loading.                 | `0`                 |
+| `src_max_len`       | `int`        | The maximum length of the source sequence.                   | `512`               |
+| `trg_max_len`       | `int`        | The maximum length of the target sequence.                   | `128`               |
+| `max_extras`        | `int`        | The maximum number of slot types to include in one input.    | `5`                 |
+| `learning_rate`     | `float`      | The initial learning rate.                                   | `1e-4`              |
+| `warmup_ratio`      | `float`      | The ratio of warmup steps to total training steps.           | `0.0`               |
+| `max_grad_norm`     | `float`      | The maximum value of gradient.                               | `1.0`               |
+| `min_delta`         | `float`      | The minimum delta value for evaluation metric.               | `1e-4`              |
+| `patience`          | `int`        | The number patience epochs before early stopping.            | `3`                 |
+| `sep_token`         | `str`        | The special token for separation.                            | `"<sep>"`           |
+| `gpu`               | `str`        | The indices of GPUs. (ex: `"0, 1"`)                          | `"0"`               |
+| `log_dir`           | `str`        | The location of lightning log directory.                     | `"./"`              |
+| `use_cached`        | `store_true` | Using cached data or not?                                    | -                   |
 
 <br/>
 
